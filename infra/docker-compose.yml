@@ -11,6 +11,7 @@ services:
       - "5433:5432"
     volumes:
       - oltp_data:/var/lib/postgresql/data
+      - ./sql/01_oltp_schema.sql:/docker-entrypoint-initdb.d/01_oltp_schema.sql
 
   postgres_analytics:
     image: postgres:15
@@ -23,6 +24,8 @@ services:
       - "5434:5432"
     volumes:
       - analytics_data:/var/lib/postgresql/data
+      - ./sql/02_analytics_schema.sql:/docker-entrypoint-initdb.d/02_analytics_schema.sql
+
 
   mongo_events:
     image: mongo:6
