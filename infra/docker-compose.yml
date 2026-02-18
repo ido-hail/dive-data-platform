@@ -1,0 +1,51 @@
+
+services:
+  postgres_oltp:
+    image: postgres:15
+    container_name: postgres_oltp
+    environment:
+      POSTGRES_USER: oltp_user
+      POSTGRES_PASSWORD: oltp_pass
+      POSTGRES_DB: dive_app
+    ports:
+      - "5433:5432"
+    volumes:
+      - oltp_data:/var/lib/postgresql/data
+
+  postgres_analytics:
+    image: postgres:15
+    container_name: postgres_analytics
+    environment:
+      POSTGRES_USER: analytics_user
+      POSTGRES_PASSWORD: analytics_pass
+      POSTGRES_DB: dive_analytics
+    ports:
+      - "5434:5432"
+    volumes:
+      - analytics_data:/var/lib/postgresql/data
+
+  mongo_events:
+    image: mongo:6
+    container_name: mongo_events
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  prefect_server:
+    image: prefecthq/prefect:2-latest
+    container_name: prefect_server
+    command: prefect server start --host 0.0.0.0
+    ports:
+      - "4200:4200"
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    ports:
+      - "3000:3000"
+
+volumes:
+  oltp_data:
+  analytics_data:
+  mongo_data:
