@@ -20,7 +20,3 @@ FastAPI → Kafka → Consumer (Pydantic contracts) → Mongo (valid) / Postgres
 - Metabase (dashboards)
 - Kafka (events only, Phase 2)
 - AWS S3 (minimal cloud raw zone)
-
-## Status
-
-Phase 0 — Repo & Local Infrastructure Skeleton
