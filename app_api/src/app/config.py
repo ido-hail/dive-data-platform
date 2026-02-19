@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     oltp_user: str = "oltp_user"
     oltp_password: str = "oltp_pass"
 
+    # Mongo (events)
+    mongo_uri: str = "mongodb://localhost:27017"
+    mongo_db: str = "dive_events"
+    mongo_events_collection: str = "raw_events"
+
     class Config:
         env_file = ".env"
         env_prefix = ""

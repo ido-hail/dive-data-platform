@@ -1,5 +1,11 @@
 from fastapi import FastAPI, HTTPException
-from .db import get_conn
+from uuid import uuid4
+from datetime import datetime, timezone
+
+from pymongo.errors import DuplicateKeyError
+
+from .db import get_conn, get_events_collection
+
 from .schemas import (
     UserCreate,
     UserOut,
@@ -163,6 +169,33 @@ def create_dive(payload: DiveCreate):
                 )
                 row = cur.fetchone()
             conn.commit()
+
+        # write event to Mongo AFTER OLTP commit
+        event = {
+            "event_id": str(uuid4()),
+            "event_type": "dive_logged",
+            "event_ts": datetime.now(timezone.utc),
+            "payload": {
+                "dive_id": row["id"],
+                "user_id": row["user_id"],
+                "site_id": row["site_id"],
+                "club_id": row["club_id"],
+                "instructor_id": row["instructor_id"],
+                "start_time": row["start_time"].isoformat() if row["start_time"] else None,
+                "end_time": row["end_time"].isoformat() if row["end_time"] else None,
+                "max_depth_m": row["max_depth_m"],
+                "avg_depth_m": row["avg_depth_m"],
+                "water_temp_c": row["water_temp_c"],
+                "notes": row["notes"],
+            },
+            "meta": {"source": "api", "schema_version": 1},
+        }
+
+        try:
+            get_events_collection().insert_one(event)
+        except DuplicateKeyError:
+            pass
+
         return row
 
     except ForeignKeyViolation as e:
